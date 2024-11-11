@@ -1,4 +1,5 @@
 import userSchema from "../../schemas/user_schema.js"
+import { genOTP } from "../../utils/functions.js"
 
 const allUsers = async () => {
     try {
@@ -15,7 +16,7 @@ const singleUserById = async (id, role) => {
         const result = await userSchema.findOne({
             where: {_id: id},
             attributes: { 
-                exclude: role === 'contestant' ? ['banned', 'role', 'password'] : role === "admin" ?['password'] : [],
+                exclude: role === 'contestant' ? ['banned', 'role', 'password', 'resetToken'] : role === "admin" ?['password', 'resetToken'] : [],
             },
         })
         return result.dataValues
@@ -28,7 +29,7 @@ const singleUserbyEmail = async (email, role) => {
         const result = await userSchema.findOne({
             where: {email: email},
             attributes: { 
-                exclude: role === 'contestant' ? ['banned', 'role', 'password'] : role === "admin" ?['password'] : [],
+                exclude: role === 'contestant' ? ['banned', 'role', 'password', 'resetToken'] : role === "admin" ?['password', 'resetToken'] : [],
             },
         })
         return result.dataValues
@@ -39,6 +40,7 @@ const singleUserbyEmail = async (email, role) => {
 
 const insertUser = async (user) => {
     try {
+        user.resetToken = genOTP()
         const result = await userSchema.create(user)
         return result
     } catch (err) {

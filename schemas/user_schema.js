@@ -55,6 +55,10 @@ const userSchema = sequelize.define("user", {
     allowNull: false,
     defaultValue: false
   },
+  resetToken: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 }, {
     tableName: 'user'
 }

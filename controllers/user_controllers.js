@@ -64,7 +64,6 @@ const banUser = async (req, res) =>  {
             {
                 where: {_id: id}
             })
-        console.log(results);
         if(results[0] > 0) 
             res.status(200).send(await singleUserById(id, req.tokenData.role))
         else 
