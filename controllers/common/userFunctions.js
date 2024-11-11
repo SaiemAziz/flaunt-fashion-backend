@@ -7,8 +7,7 @@ const allUsers = async () => {
         })
         return results
     } catch (err) {
-        console.log(err);
-        return null
+        throw err
     }
 }  
 const singleUserById = async (id, role) => {
@@ -21,8 +20,7 @@ const singleUserById = async (id, role) => {
         })
         return result.dataValues
     } catch (err) {
-        console.log(err);
-        return null
+        throw err
     }
 }  
 const singleUserbyEmail = async (email, role) => {
@@ -35,8 +33,7 @@ const singleUserbyEmail = async (email, role) => {
         })
         return result.dataValues
     } catch (err) {
-        console.log(err);
-        return null
+        throw err
     }
 }  
 
@@ -45,8 +42,9 @@ const insertUser = async (user) => {
         const result = await userSchema.create(user)
         return result
     } catch (err) {
-        console.log(err);
-        return null
+        throw err
+        // console.log(err);
+        // return null
     }
 }  
 

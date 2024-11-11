@@ -36,8 +36,7 @@ const allPosts = async (options = {}) => {
         `);
     return results[0];
   } catch (err) {
-    console.log(err);
-    return null;
+    throw err
   }
 };
 
@@ -62,8 +61,7 @@ const singlePostById = async (id, my_id) => {
     }
     return result[0][0];
   } catch (err) {
-    console.log(err);
-    return null;
+    throw err
   }
 };
 
@@ -72,8 +70,7 @@ const insertPost = async (data) => {
     const result = await postSchema.create(data);
     return result;
   } catch (err) {
-    console.log(err);
-    return null;
+    throw err
   }
 };
 const updatePost = async (data, id) => {
@@ -83,8 +80,7 @@ const updatePost = async (data, id) => {
     });
     return result;
   } catch (err) {
-    console.log(err);
-    return null;
+    throw err
   }
 };
 
