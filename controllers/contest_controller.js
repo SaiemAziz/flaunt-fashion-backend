@@ -58,7 +58,6 @@ const postContest = async (req, res) => {
                 ...req.body,
                 user_id: req.tokenData._id
             });
-        console.log(results);
         if(results?.dataValues?._id) 
             getAllContests(req, res)
         else 

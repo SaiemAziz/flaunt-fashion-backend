@@ -23,12 +23,12 @@ const getAllPosts = async (req, res) => {
 
     if (req?.tokenData?.role === "admin") delete options.where.approved;
     const results = await allPosts(options);
-    if (results) {
+    if (results.length)
       res.status(200).send(await myGivenVotes(results, req?.tokenData?._id));
-    } else
+    else
       res
-        .status(500)
-        .send({ message: "Something went wrong. Please try again." });
+        .status(404)
+        .send({ message: "No posts found." });
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -42,12 +42,12 @@ const getMyPosts = async (req, res) => {
         where: { user_id: req?.tokenData?._id },
       };
     const results = await allPosts(options);
-    if (results)
+    if (results.length)
       res.status(200).send(await myGivenVotes(results, req?.tokenData?._id));
     else
       res
-        .status(500)
-        .send({ message: "Something went wrong. Please try again." });
+        .status(404)
+        .send({ message: "No posts found." });
   } catch (err) {
     res.status(500).send(err);
   }
@@ -56,11 +56,12 @@ const getMyPosts = async (req, res) => {
 const getPost = async (req, res) => {
   try {
     const result = await singlePostById(req.params.id, req?.tokenData?._id);
+    console.log(result);
     if (result) res.status(200).send(result);
     else
       res
-        .status(500)
-        .send({ message: "Something went wrong. Please try again." });
+        .status(404)
+        .send({ message: "Post not found." });
   } catch (err) {
     res.status(500).send(err);
   }
@@ -91,7 +92,7 @@ const putPost = async (req, res) => {
 
     const result = await updatePost(req.body, req.params.id);
 
-    if (result) getPost(req, res);
+    if (result[0] > 0) getPost(req, res);
     else
       res
         .status(500)
@@ -118,7 +119,7 @@ const deletePost = async (req, res) => {
     if (post) {
       await post.destroy();
       getAllPosts(req, res);
-    } else res.status(404).send({ message: "Post was not found." });
+    } else res.status(404).send({ message: "Post not found." });
   } catch (err) {
     console.log(err);
     res.status(500).send(err);

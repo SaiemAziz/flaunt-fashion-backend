@@ -1,3 +1,5 @@
+import colors from 'colors';
+
 const genOTP = (length = 6) => {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -9,4 +11,18 @@ const genOTP = (length = 6) => {
   return otp;
 };
 
-export { genOTP };
+const rootServerCalling = () => { 
+  fetch("https://flaunt-fashion-backend.onrender.com/api/v1") 
+  .then(response => { 
+    console.log(`Reloaded at ${new Date().toLocaleString("en-GB", { hour12: true })}: Status Code ${response.status}`.green); 
+  }) 
+  .catch(error => { 
+    console.error(`Error reloading at ${new Date().toLocaleString("en-GB", { hour12: true })}: ${error.message}`.red); 
+  }); 
+}
+
+const reloadServer = () => {
+  setInterval(rootServerCalling, 600000)
+} 
+
+export { genOTP, reloadServer };
