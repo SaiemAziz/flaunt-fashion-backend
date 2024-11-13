@@ -17,9 +17,9 @@ const singleUserById = async (id, role) => {
             where: {_id: id},
             attributes: { 
                 exclude: role === 'contestant' ? ['banned', 'role', 'password', 'resetToken'] : role === "admin" ?['password', 'resetToken'] : [],
-            },
+            }
         })
-        return result.dataValues
+        return result
     } catch (err) {
         throw err
     }
@@ -32,7 +32,7 @@ const singleUserbyEmail = async (email, role) => {
                 exclude: role === 'contestant' ? ['banned', 'role', 'password', 'resetToken'] : role === "admin" ?['password', 'resetToken'] : [],
             },
         })
-        return result.dataValues
+        return result
     } catch (err) {
         throw err
     }
@@ -45,8 +45,6 @@ const insertUser = async (user) => {
         return result
     } catch (err) {
         throw err
-        // console.log(err);
-        // return null
     }
 }  
 

@@ -12,7 +12,7 @@ const genOTP = (length = 6) => {
 };
 
 const rootServerCalling = () => { 
-  fetch("https://flaunt-fashion-backend.onrender.com/api/v1") 
+  fetch(process.env.LIVE_LINK,"/api/v1") 
   .then(response => { 
     console.log(`Reloaded at ${new Date().toLocaleString("en-GB", { hour12: true })}: Status Code ${response.status}`.green); 
   }) 

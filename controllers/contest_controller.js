@@ -1,16 +1,16 @@
 import contestSchema from "../schemas/contest_schema.js";
+import { refineContest } from "../utils/remove_attributes.js";
+import { notFoundError, responseSuccess, serverError } from "./common/commonFunction.js";
 
 const getAllContests = async (req, res) => {
     try {
         const results = await contestSchema.findAll();
         console.log(results);
         if(results.length > 0) 
-            res.status(200).send(results)
-        else 
-            res.status(404).send({message: "No contests found."})
+            responseSuccess(res, results)
+        else notFoundError(res, "No contests found.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 
@@ -21,20 +21,17 @@ const getContest = async (req, res) => {
                 _id: req.params.id
             }
         });
-        if(result) 
-            res.status(200).send(result)
-        else 
-            res.status(404).send({message: "Contest not found."})
+        if(result) responseSuccess(res, result)
+        else notFoundError(res, "Contest not found.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 const putContest = async (req, res) => {
     try {
         const results = await contestSchema.update(
             {
-                ...req.body,
+                ...refineContest(req.body),
                 user_id: req.tokenData._id
             },
             {
@@ -44,27 +41,24 @@ const putContest = async (req, res) => {
             });
         if(results[0] > 0) 
             getContest(req, res)
-        else 
-            res.status(404).send({message: "Contest not found."})
+        else notFoundError(res, "Contest not found.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 const postContest = async (req, res) => {
     try {
         const results = await contestSchema.create(
             {
-                ...req.body,
+                ...refineContest(req.body),
                 user_id: req.tokenData._id
             });
         if(results?.dataValues?._id) 
             getAllContests(req, res)
         else 
-            res.status(404).send({message: "Couldn't post contest."})
+            notFoundError(res, "Contest couldn't be added.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 const deleteContest = async (req, res) => {
@@ -78,10 +72,9 @@ const deleteContest = async (req, res) => {
             await result.destroy();
             getAllContests(req, res)
         } 
-        else res.status(404).send({message: "Contest not found."})
+        else notFoundError(res, "Contests not found.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 

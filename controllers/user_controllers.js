@@ -1,76 +1,66 @@
 import userSchema from "../schemas/user_schema.js"
+import { refineUser } from "../utils/remove_attributes.js";
+import { checkId, notFoundError, responseSuccess, serverError } from "./common/commonFunction.js";
 import { allUsers, singleUserById } from "./common/userFunctions.js"
 import bcrypt from 'bcrypt';
 
-// API functions for User
+// API for GET ALL Users 
 const getAllUsers = async (req, res) => {
     try {
         const results = await allUsers()
         if(results.length > 0) 
-            res.status(200).send(results)
+            responseSuccess(res, results)
         else 
-            res.status(404).send({message: "No users found."})
-    } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
-    }
+            notFoundError(res, "No users found.")
+} catch (err) {
+    serverError(res, err)
 }
+}
+
+
+// API for GET SINGLE User by ID 
 const getUser = async (req, res) => {
     try {
-        const id = parseInt(req.params.id)
-        if(isNaN(id))
-            return res.status(400).send({message: "Invalid user id."})
+        const id = checkId(req, res)
         const result = await singleUserById(id, req.tokenData.role)
         if(result) {
-            res.status(200).send(result)
+            responseSuccess(res, result)
         }
         else 
-            res.status(404).send({message: "User not found."})
+            notFoundError(res, "User not found.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
+
+// API for PUT SINGLE User by ID 
 const putUser = async (req, res) =>  {
     try {
-        const user = req.body
-        if(user.password)
-            user.password = await bcrypt.hash(user.password, parseInt(process.env.SALT));
-        if(user.banned) delete user.banned
-        if(user.role) delete user.role
-        if(user.email) delete user.email
-        const results = await userSchema.update(req.body,
-            {
-                where: {_id: req.tokenData._id}
-            })
+        const user = refineUser(req.body)
+        const results = await userSchema.update(user,
+            {where: {_id: req.tokenData._id}})
         if(results[0] > 0) 
-            res.status(200)
-            .send(await singleUserById(req.tokenData._id, req.tokenData.role))
+            responseSuccess(res, await singleUserById(req.tokenData._id, req.tokenData.role))
         else 
-            res.status(404).send({message: "User couldn't update."})
+            notFoundError(res, "User couldn't update.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
+
+// API for BAN SINGLE User by ID 
 const banUser = async (req, res) =>  {
     try {
-        const id = parseInt(req.params.id)
-        if(isNaN(id))
-            return res.status(400).send({message: "Invalid user id."})
-        
+        const id = checkId(req, res)
         const results = await userSchema.update(
-            req.body,
-            {
-                where: {_id: id}
-            })
+            {banned: req.body.banned},
+            {where: {_id: id}})
         if(results[0] > 0) 
-            res.status(200).send(await singleUserById(id, req.tokenData.role))
+            responseSuccess(res, await singleUserById(id, req.tokenData.role))
         else 
-            res.status(404).send({message: "User couldn't update."})
+            notFoundError(res, "User couldn't be banned.")
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err)
+        serverError(res, err)
     }
 }
 

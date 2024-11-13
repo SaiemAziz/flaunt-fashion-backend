@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { insertUser, singleUserbyEmail } from "./common/userFunctions.js";
 import { genOTP } from "../utils/functions.js";
 import mailer from "../utils/nodemailer_config.js";
+import { invalidDataError, notFoundError, responseSuccess, serverError, unauthorizedError } from "./common/commonFunction.js";
 dotenv.config();
 
 const cookieOptions = {
@@ -16,7 +17,6 @@ const cookieOptions = {
 const signUp = async (req, res) => {
   try {
     const user = req.body;
-    console.log(process.env.SALT);
     if (user.password)
       user.password = await bcrypt.hash(
         user.password,
@@ -24,12 +24,10 @@ const signUp = async (req, res) => {
       );
     const result = await insertUser(user);
     if (result?.email)
-      res
-        .status(201)
-        .send(await singleUserbyEmail(result?.email, result?.role));
-    else throw new Error("User could not be added. Please try again.");
+      responseSuccess(res, await singleUserbyEmail(result?.email, result?.role))
+    else notFoundError(res, "User couldn't be added.")
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 // sign in endpoint
@@ -37,10 +35,10 @@ const signIn = async (req, res) => {
   try {
     const user = await singleUserbyEmail(req.body.email);
     if (!user)
-      return res.status(404).send({ message: "Email does not exist." });
+      return notFoundError(res, "User not found.");
     if (user.banned) {
       res.clearCookie("accessToken", [cookieOptions]);
-      return res.status(401).send({ message: "User is banned." });
+      return unauthorizedError(res, "User is banned.");
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
@@ -50,10 +48,10 @@ const signIn = async (req, res) => {
         process.env.JWT_SECRET
       );
       res.cookie("accessToken", token, cookieOptions);
-      res.status(200).send(await singleUserbyEmail(user?.email, user?.role));
-    } else res.status(401).send({ message: "Invalid password." });
+      responseSuccess(res, await singleUserbyEmail(user?.email, user?.role))
+    } else invalidDataError(res, "Invalid password.");
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 const getMyInfo = async (req, res) => {
@@ -62,11 +60,11 @@ const getMyInfo = async (req, res) => {
       req.tokenData.email,
       req.tokenData.role
     );
-    if (!user) res.status(404).send({ message: "Email does not exist." });
-    else if (user.banned) res.status(401).send({ message: "User is banned." });
-    else res.status(200).send(user);
+    if (!user) notFoundError(res, "User with this email not found.");
+    else if (user.banned) unauthorizedError(res, "User is banned." )
+    else responseSuccess(res, user);
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 
@@ -74,7 +72,7 @@ const resetPassword = async (req, res) => {
   try {
     const [resetToken, id] = req.body.resetToken.split("$");
     if (!id || isNaN(parseInt(id)))
-      return res.status(404).send({ message: "Reset token is invalid." });
+      return invalidDataError(res, "Reset Token is invalid.");
     const user = await userSchema.findOne({
       where: {
         _id: id,
@@ -84,9 +82,7 @@ const resetPassword = async (req, res) => {
     if (user) {
       const isMatch = await bcrypt.compare(req.body.password, user.password);
       if (isMatch)
-        return res
-          .status(403)
-          .send({ message: "New password can not be same as old password." });
+        return unauthorizedError(res, "New password can't be same as old password.")
       const newPassword = await bcrypt.hash(
         req.body.password,
         parseInt(process.env.SALT)
@@ -95,10 +91,10 @@ const resetPassword = async (req, res) => {
         { password: newPassword, resetToken: genOTP() },
         { where: { _id: id } }
       );
-      res.status(200).send({ message: "Password reset successful." });
-    } else res.status(404).send({ message: "Reset token is invalid." });
+      responseSuccess({ message: "Password reset successful." })
+    } else invalidDataError(res, "Reset Token is invalid.")
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 
@@ -108,7 +104,7 @@ const forgotPassword = async (req, res) => {
     const user = await userSchema.findOne({
       where: { email: email },
     });
-    if (!user) return res.status(404).send({ message: "Email is not found." });
+    if (!user) return notFoundError(res, "User with this email not found.")
     const resetToken = user.resetToken + "$" + user._id;
     const mailOptions = {
       from: process.env.EMAIL,
@@ -124,13 +120,12 @@ const forgotPassword = async (req, res) => {
         `,
     };
     const result = await mailer.sendMail(mailOptions);
-    // console.log(result);
     if(result.messageId)
-        res.status(200).send({ message: "Reset password email sent successfully." });
+        responseSuccess(res, { message: "Reset password email sent successfully." })
     else 
-        throw new Error("Couldn't send reset password email. Please try again later.");
+        notFoundError(res, "Couldn't send reset password email.")
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 

@@ -57,9 +57,9 @@ contestSchema.hasMany(postSchema, {
 postSchema.belongsTo(contestSchema, { foreignKey: 'contest_id' });
 
 // if(process.env.SERVER === 'Dev')
-// seq.sync({ alter: true })
-// .then(() => console.log('Database & tables created!'.bgYellow))
-// .catch(e => console.log(e));
+//     seq.sync({ alter: true })
+//     .then(() => console.log('Database & tables created!'.bgYellow))
+//     .catch(e => console.log(e));
 
 
 export default seq

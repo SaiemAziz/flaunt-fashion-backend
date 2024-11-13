@@ -1,4 +1,5 @@
 import voteSchema from "../schemas/vote_schema.js";
+import { responseSuccess, serverError } from "./common/commonFunction.js";
 
 const postVote = async (req, res) => {
     try {
@@ -10,14 +11,13 @@ const postVote = async (req, res) => {
         })
         if(vote) {
             const result = await vote.destroy()
-            res.status(200).send({message: "Unvote successful."})
+            responseSuccess(res, {message: "Unliked successfully."})
         } else {
             const result = await voteSchema.create(req.body)
-            res.status(200).send(result)
+            responseSuccess(res, {message: "Liked successfully."})
         } 
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err);
+        serverError(res, err)
     }
 }
 

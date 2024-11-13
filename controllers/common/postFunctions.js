@@ -2,6 +2,7 @@ import seq from "../../schemas/index.js";
 import postSchema from "../../schemas/post_schema.js";
 import voteSchema from "../../schemas/vote_schema.js";
 
+// SQL query to join VOTE and POST tables and count votes for each post
 // `
 // SELECT
 //     p.*,
@@ -94,8 +95,7 @@ const myGivenVotes = async (data, user_id) => {
         data.forEach(d => {d.vote = result.includes(d._id)})
         return data
     } catch (err) {
-        console.log(err);
-        return data;
+        throw err
     }
 }
 

@@ -1,4 +1,6 @@
 import postSchema from "../schemas/post_schema.js";
+import { refinePost } from "../utils/remove_attributes.js";
+import { notFoundError, responseSuccess, serverError, unauthorizedError } from "./common/commonFunction.js";
 import {
   allPosts,
   insertPost,
@@ -7,6 +9,7 @@ import {
   updatePost,
 } from "./common/postFunctions.js";
 
+// API for GET ALL Posts
 const getAllPosts = async (req, res) => {
   try {
     if (req?.query?.myPosts) {
@@ -23,85 +26,78 @@ const getAllPosts = async (req, res) => {
 
     if (req?.tokenData?.role === "admin") delete options.where.approved;
     const results = await allPosts(options);
-    if (results.length)
-      res.status(200).send(await myGivenVotes(results, req?.tokenData?._id));
-    else
-      res
-        .status(404)
-        .send({ message: "No posts found." });
+    if (results.length) 
+      responseSuccess(res, await myGivenVotes(results, req?.tokenData?._id))
+    else notFoundError(res, "No posts found.");
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
+
+
+// API for GET ALL My Posts
 const getMyPosts = async (req, res) => {
   try {
     let options = {};
     if (req?.tokenData?._id)
       options = {
-        where: { user_id: req?.tokenData?._id },
-      };
+    where: { user_id: req?.tokenData?._id },
+  };
     const results = await allPosts(options);
     if (results.length)
-      res.status(200).send(await myGivenVotes(results, req?.tokenData?._id));
-    else
-      res
-        .status(404)
-        .send({ message: "No posts found." });
+      responseSuccess(res, await myGivenVotes(results, req?.tokenData?._id))
+    else notFoundError(res, "No posts found.");
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 
+// API for GET Single Post
 const getPost = async (req, res) => {
   try {
     const result = await singlePostById(req.params.id, req?.tokenData?._id);
-    console.log(result);
-    if (result) res.status(200).send(result);
-    else
-      res
-        .status(404)
-        .send({ message: "Post not found." });
+    if (result) responseSuccess(res, result);
+    else notFoundError(res, "Post not found.");
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 
+// API for POST Single Post
 const postPost = async (req, res) => {
   try {
-    const result = await insertPost(req.body);
+    const result = await insertPost(
+      {
+        ...refinePost(req.body),
+        user_id: req?.tokenData?._id,
+      }
+    );
     if (result) getAllPosts(req, res);
-    else
-      res
-        .status(500)
-        .send({ message: "Something went wrong. Please try again." });
+    else notFoundError(res, "Post couldn't be inserted.");
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
+
+
+// API for PUT Single Post
 const putPost = async (req, res) => {
   try {
     const post = await singlePostById(req.params.id);
     if (req.tokenData.role === "contestant")
       if (post?.user_id !== req.tokenData._id || post.approved)
-        return res
-          .status(403)
-          .send({
-            message: "Sorry, you are not authorized to update this post.",
-          });
+        return unauthorizedError(res, "You can't update this post.")
 
-    const result = await updatePost(req.body, req.params.id);
+    const result = await updatePost(refinePost(req.body), req.params.id);
 
     if (result[0] > 0) getPost(req, res);
-    else
-      res
-        .status(500)
-        .send({ message: "Something went wrong. Please try again." });
+    else notFoundError(res, "Post couldn't be updated.")
   } catch (err) {
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 
+// API for DELETE Single Post
 const deletePost = async (req, res) => {
   try {
     const post = await postSchema.findOne({
@@ -113,16 +109,13 @@ const deletePost = async (req, res) => {
       req.tokenData.role === "contestant" &&
       post?.user_id !== req.tokenData._id
     )
-      return res
-        .status(403)
-        .send({ message: "Sorry, you can't delete this post." });
+      return unauthorizedError(res, "You can't delete this post.")
     if (post) {
       await post.destroy();
       getAllPosts(req, res);
-    } else res.status(404).send({ message: "Post not found." });
+    } else notFoundError(res, "Post not found.");
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    serverError(res, err)
   }
 };
 

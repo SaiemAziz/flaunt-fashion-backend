@@ -1,83 +1,74 @@
 import blogSchema from "../schemas/blog_schema.js"
+import { refineBlog } from "../utils/remove_attributes.js"
 import { allBlogs, insertBlog, singleBlogById, updateBlog } from "./common/blogFunctions.js"
+import { checkId, notFoundError, responseSuccess, serverError } from "./common/commonFunction.js"
 
 const getAllBlogs = async (req, res) => {
     try {
         const results = await allBlogs()
         if(results.length > 0)
-            res.status(200).send(results)
+            responseSuccess(res, results)
         else
-            res.status(404).send({message: "No blogs found."})
+            notFoundError(res, "No blogs found.")
     } catch (err) {
-        res.status(500).send(err)
+        serverError(res, err)
     }
 } 
 const getBlog = async (req, res) => {
     try {
-        const id = parseInt(req.params.id)
-        if(isNaN(id))
-            return res.status(400).send({message: "Invalid blog id."})
+        const id = checkId(req.params.id)
         
         const result = await singleBlogById(id)
         
         if(result)
-            res.status(200).send(result)
+            responseSuccess(res, result)
         else
-            res.status(404).send({message: "Blog not found."})
+            notFoundError(res, "Blog not found.")
     } catch (err) {
-        res.status(500).send(err)
+        serverError(res, err)
     }
 } 
 
 const putBlog = async (req, res) => {
     try {
-        const id = parseInt(req.params.id)
-        if(isNaN(id))
-            return res.status(400).send({message: "Invalid blog id."})
+        const id = checkId(req.params.id)
 
-
-        
-        const result = await updateBlog(req.body, id)
+        const result = await updateBlog(refineBlog(req.body), id)
         
         if(result[0] > 0) getBlog(req, res)
         else
-            res.status(404).send({message: "Blog not found."})
+            notFoundError(res, "Blog not found.")
     } catch (err) {
-        res.status(500).send(err)
+        serverError(res, err)
     }
 } 
 const postBlog = async (req, res) => {
     try {
         const result = await insertBlog({
-            ...req.body,
+            ...refineBlog(req.body),
             user_id: req?.tokenData?._id
         })
         
         if(result) getAllBlogs(req, res)
-        else
-            res.status(404).send({message: "Couldn't add blog. Please try again."})
+        else notFoundError(res, "Couldn't add blog.")
     } catch (err) {
-        res.status(500).send(err)
+        serverError(res, err)
     }
 } 
 const deleteBlog = async (req, res) => {
     try {
-        const id = parseInt(req.params.id)
-        if(isNaN(id))
-            return res.status(400).send({message: "Invalid blog id."})
+        const id = checkId(req.params.id)
 
-
-        
         const result = await singleBlogById(id)
         
         if(result) {
             await result.destroy()
             getAllBlogs(req, res)
         } else
-            res.status(404).send({message: "Blog not found."})
+            notFoundError(res, "Blog not found.")
 
     } catch (err) {
-        res.status(500).send(err)
+        serverError(res, err)
     }
 } 
 
