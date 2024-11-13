@@ -3,6 +3,7 @@ import { refineBlog } from "../utils/remove_attributes.js"
 import { allBlogs, insertBlog, singleBlogById, updateBlog } from "./common/blogFunctions.js"
 import { checkId, notFoundError, responseSuccess, serverError } from "./common/commonFunction.js"
 
+// API for GET ALL Blogs
 const getAllBlogs = async (req, res) => {
     try {
         const results = await allBlogs()
@@ -14,6 +15,8 @@ const getAllBlogs = async (req, res) => {
         serverError(res, err)
     }
 } 
+
+// API for GET Single Blog
 const getBlog = async (req, res) => {
     try {
         const id = checkId(req.params.id)
@@ -29,6 +32,7 @@ const getBlog = async (req, res) => {
     }
 } 
 
+// API for PUT Single Blog
 const putBlog = async (req, res) => {
     try {
         const id = checkId(req.params.id)
@@ -37,11 +41,12 @@ const putBlog = async (req, res) => {
         
         if(result[0] > 0) getBlog(req, res)
         else
-            notFoundError(res, "Blog not found.")
+    notFoundError(res, "Blog not found.")
     } catch (err) {
         serverError(res, err)
     }
 } 
+// API for POST Single Blog
 const postBlog = async (req, res) => {
     try {
         const result = await insertBlog({
@@ -50,15 +55,16 @@ const postBlog = async (req, res) => {
         })
         
         if(result) getAllBlogs(req, res)
-        else notFoundError(res, "Couldn't add blog.")
+            else notFoundError(res, "Couldn't add blog.")
     } catch (err) {
         serverError(res, err)
     }
 } 
+// API for DELETE Single Blog
 const deleteBlog = async (req, res) => {
     try {
         const id = checkId(req.params.id)
-
+        
         const result = await singleBlogById(id)
         
         if(result) {
@@ -66,12 +72,11 @@ const deleteBlog = async (req, res) => {
             getAllBlogs(req, res)
         } else
             notFoundError(res, "Blog not found.")
-
+            
     } catch (err) {
         serverError(res, err)
     }
 } 
-
 
 
 export {

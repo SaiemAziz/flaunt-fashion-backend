@@ -13,7 +13,7 @@ const cookieOptions = {
   secure: true,
   signed: true,
 };
-// sign up endpoint
+// API for SIGN UP
 const signUp = async (req, res) => {
   try {
     const user = req.body;
@@ -30,7 +30,7 @@ const signUp = async (req, res) => {
     serverError(res, err)
   }
 };
-// sign in endpoint
+// API for SIGN IN
 const signIn = async (req, res) => {
   try {
     const user = await singleUserbyEmail(req.body.email);
@@ -54,6 +54,7 @@ const signIn = async (req, res) => {
     serverError(res, err)
   }
 };
+// API for My Information
 const getMyInfo = async (req, res) => {
   try {
     const user = await singleUserbyEmail(
@@ -68,6 +69,7 @@ const getMyInfo = async (req, res) => {
   }
 };
 
+// API for Reset Password
 const resetPassword = async (req, res) => {
   try {
     const [resetToken, id] = req.body.resetToken.split("$");
@@ -98,6 +100,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// API for Forgot Password
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;

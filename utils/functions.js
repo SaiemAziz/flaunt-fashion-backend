@@ -1,5 +1,6 @@
 import colors from 'colors';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const genOTP = (length = 6) => {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

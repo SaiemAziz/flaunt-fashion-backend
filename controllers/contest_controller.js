@@ -2,6 +2,7 @@ import contestSchema from "../schemas/contest_schema.js";
 import { refineContest } from "../utils/remove_attributes.js";
 import { notFoundError, responseSuccess, serverError } from "./common/commonFunction.js";
 
+// API for GET All Contests
 const getAllContests = async (req, res) => {
     try {
         const results = await contestSchema.findAll();
@@ -14,6 +15,7 @@ const getAllContests = async (req, res) => {
     }
 }
 
+// API for GET Single Contest
 const getContest = async (req, res) => {
     try {
         const result = await contestSchema.findOne({
@@ -27,6 +29,7 @@ const getContest = async (req, res) => {
         serverError(res, err)
     }
 }
+// API for PUT Single Contest
 const putContest = async (req, res) => {
     try {
         const results = await contestSchema.update(
@@ -46,6 +49,7 @@ const putContest = async (req, res) => {
         serverError(res, err)
     }
 }
+// API for POST Single Contest
 const postContest = async (req, res) => {
     try {
         const results = await contestSchema.create(
@@ -61,6 +65,7 @@ const postContest = async (req, res) => {
         serverError(res, err)
     }
 }
+// API for DELETE Single Contest
 const deleteContest = async (req, res) => {
     try {
         const result = await contestSchema.findOne({

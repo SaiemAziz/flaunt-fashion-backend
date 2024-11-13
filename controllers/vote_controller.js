@@ -1,6 +1,7 @@
 import voteSchema from "../schemas/vote_schema.js";
 import { responseSuccess, serverError } from "./common/commonFunction.js";
 
+// API for POST and DELETE Vote for a Post
 const postVote = async (req, res) => {
     try {
         const vote = await voteSchema.findOne({
