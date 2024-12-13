@@ -7,7 +7,7 @@ const options = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Flaunt Fashion API',
+      title: 'Flaunt Fashion API documentation.',
       version: '1.0.0'
     },
     servers: [
@@ -18,7 +18,7 @@ const options = {
       },
     ],
   },
-  apis: ['./index.js', './app.js', './routes/**/*.js'],
+  apis: ['../index.js', '../app.js', '../routes/**/*.js'],
 }
 
 const swaggerSpecs = swaggerJsdoc(options)

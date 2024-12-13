@@ -7,7 +7,7 @@ import colors from 'colors'
 import app from './app.js'
 import cookieParser from 'cookie-parser';
 import { reloadServer } from './utils/functions.js';
-import swaggerMiddleWare from './swagger_config.js';
+import swaggerMiddleWare from './utils/swagger_config.js';
 dotenv.config()
 const server = express();
 const PORT = process.env.PORT || 8000

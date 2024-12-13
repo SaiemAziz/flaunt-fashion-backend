@@ -2,7 +2,7 @@
 # Flaunt Fashion Backend
 ## Overview
 This is an Express.js Backend project for Flaunt Fashion website. Flaunt Fashion is a dynamic platform that empowers fashion enthusiasts to showcase their creativity and compete in exciting fashion contests. It provides a user-friendly interface for participants to submit their designs, and a voting system for users to cast their votes.
-#### Server: https://flaunt-fashion-backend.onrender.com/api/v1 
+#### Server Documentation: https://flaunt-fashion-backend.onrender.com/api-docs 
 
 ## Entity Relationship Diagram
 ![ERD](https://i.ibb.co.com/WvvKqNQ/fashion.jpg)
