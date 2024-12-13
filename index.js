@@ -7,6 +7,7 @@ import colors from 'colors'
 import app from './app.js'
 import cookieParser from 'cookie-parser';
 import { reloadServer } from './utils/functions.js';
+import swaggerMiddleWare from './swagger_config.js';
 dotenv.config()
 const server = express();
 const PORT = process.env.PORT || 8000
@@ -20,6 +21,9 @@ server.use(cookieParser(process.env.COOKIE_SECRET));
 // routes
 server.use("/api", app)
 
+// swagger
+swaggerMiddleWare(server)
+
 // listener
 seq.authenticate()
 .then(()=> {
@@ -27,4 +31,4 @@ seq.authenticate()
     server.listen(PORT, () => console.log(`${process.env.SERVER} server listening on ${PORT}`.bgCyan));
     reloadServer();
 })
-.catch(e => console.log(e.bgRed))
+.catch(e => console.error(e))

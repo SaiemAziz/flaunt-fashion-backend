@@ -19,7 +19,7 @@ const getAllBlogs = async (req, res) => {
 // API for GET Single Blog
 const getBlog = async (req, res) => {
     try {
-        const id = checkId(req.params.id)
+        const id = checkId(req, res)
         
         const result = await singleBlogById(id)
         
@@ -35,14 +35,14 @@ const getBlog = async (req, res) => {
 // API for PUT Single Blog
 const putBlog = async (req, res) => {
     try {
-        const id = checkId(req.params.id)
-
+        const id = checkId(req, res)
         const result = await updateBlog(refineBlog(req.body), id)
         
         if(result[0] > 0) getBlog(req, res)
         else
-    notFoundError(res, "Blog not found.")
+            notFoundError(res, "Blog not found.")
     } catch (err) {
+        console.log(err);
         serverError(res, err)
     }
 } 
@@ -63,7 +63,7 @@ const postBlog = async (req, res) => {
 // API for DELETE Single Blog
 const deleteBlog = async (req, res) => {
     try {
-        const id = checkId(req.params.id)
+        const id = checkId(req, res)
         
         const result = await singleBlogById(id)
         

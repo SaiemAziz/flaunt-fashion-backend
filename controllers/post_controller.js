@@ -15,7 +15,8 @@ const getAllPosts = async (req, res) => {
     if (req?.query?.myPosts) {
       getMyPosts(req, res);
       return;
-    }
+    } else if (!req?.query?.contest_id)
+        return notFoundError(res, "Please provide contest_id");
 
     let options = {
       where: { approved: true },

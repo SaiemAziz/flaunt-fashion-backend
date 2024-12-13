@@ -1,5 +1,6 @@
 const checkId = (req, res) => {
     const id = parseInt(req.params.id)
+    console.log(id);
     if(isNaN(id))
         return invalidDataError(res, "Invalid id.")
     else return id

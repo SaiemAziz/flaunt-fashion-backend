@@ -93,9 +93,10 @@ const resetPassword = async (req, res) => {
         { password: newPassword, resetToken: genOTP() },
         { where: { _id: id } }
       );
-      responseSuccess({ message: "Password reset successful." })
+      responseSuccess(res, { message: "Password reset successful." })
     } else invalidDataError(res, "Reset Token is invalid.")
   } catch (err) {
+    console.log(err);
     serverError(res, err)
   }
 };
